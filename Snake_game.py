@@ -2,12 +2,18 @@
 This file has the necessary code to start the snake game.
 The code has been slightly modified from its original state, see (https://github.com/rajatdiptabiswas/snake-pygame) for the original code.
 """
-from Jormungandr import jormungandr
+from Jormungandr import Jormungandr
 import pygame, sys, time, random, argparse
 
-
+# Argument parser
 parser = argparse.ArgumentParser(description = "Start the game!")
+
+# Difficulty
 parser.add_argument("-d","--difficulty",dest = 'difficulty', type = int, required = False, default = 2, help = "Difficulty of the snake game: 1.- Easy  2.- Medium  3.- Hard 4.- Very Hard  5.- Impossible.   Default is 2")
+
+# Difficulty
+parser.add_argument("-hh","--heuristic",dest = 'heuristic', type = str, required = False, default = 'manhattan', help = "Which heuristic to use, 1 .- Manhattan Distance. 2.- Euclidean Distance")
+
 
 args = parser.parse_args()
 
@@ -34,6 +40,7 @@ frame_size_y = 480
 
 # Checks for errors encountered
 check_errors = pygame.init()
+
 # pygame.init() example output -> (6, 0)
 # second number in tuple gives number of errors
 if check_errors[1] > 0:
@@ -44,7 +51,7 @@ else:
 
 
 # Initialise game window
-pygame.display.set_caption('Snake Eater')
+pygame.display.set_caption('Jormungandr')
 game_window = pygame.display.set_mode((frame_size_x, frame_size_y))
 
 
@@ -60,14 +67,14 @@ blue = pygame.Color(0, 0, 255)
 fps_controller = pygame.time.Clock()
 
 
-# Game variables
-
-#Default snake position
+# --------- Game variables --------------
+# Default snake position
 snake_pos = [100, 50]
-#Snake starts with length == 3
+
+# Snake starts with length == 3
 snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
 
-#We generate the first piece of food
+# We generate the first piece of food
 food_pos = [random.randrange(1, (frame_size_x//10)) * 10, random.randrange(1, (frame_size_y//10)) * 10]
 food_spawn = True
 
@@ -104,28 +111,28 @@ def show_score(choice, color, font, size):
     game_window.blit(score_surface, score_rect)
     # pygame.display.flip()
 
-snake = jormungandr(frame_size_x, frame_size_y)
+snake = Jormungandr(frame_size_x, frame_size_y, args.heuristic)
 # Main logic
 while True:
    
     move_sequence = snake.pathfind(snake_body, food_pos)
-
     for move in move_sequence:
+
         # Moving the snake
 
-        #UP
+        # Move up
         if move == 1:
             snake_pos[1] -= 10
 
-        #DOWN
+        # Move down
         if move == 2:
             snake_pos[1] += 10
 
-        #LEFT
+        # Move left
         if move == 3:
             snake_pos[0] -= 10
 
-        #RIGHT
+        # Move right
         if move == 4:
             snake_pos[0] += 10
         
