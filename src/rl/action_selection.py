@@ -1,4 +1,6 @@
 import random
+import math
+
 import numpy as np
 
 from utils import softmax
@@ -6,9 +8,12 @@ from utils import softmax
 REDUCE_STEPS = 1000
 class EpsilonGreedy():
 
-    def __init__(self, epsilon: float, reduce_on_steps = False) -> None:
+    def __init__(self, epsilon_start: float, epsilon_end: float, epsilon_decay: int = 10000, reduce_on_steps = False) -> None:
         
-        self.epsilon = epsilon
+        self.epsilon_start = epsilon_start
+        self.epsilon_end = epsilon_end
+        self.epsilon_decay = epsilon_decay
+
         self.steps = 0
         self.reduce_on_steps = reduce_on_steps
 
@@ -18,12 +23,15 @@ class EpsilonGreedy():
         prob = random.random()
         self.steps += 1
 
-        if self.reduce_on_steps and self.steps == REDUCE_STEPS:
-            self.steps = 0
+        if self.reduce_on_steps:
 
-            if self.epsilon > 0:
-                self.epsilon = round(self.epsilon -0.1, 1)
-                print("Epsilon:",self.epsilon)
+            # Smooth epsilon decay
+            self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(-1. * self.steps / self.epsilon_decay)
+
+            # To avoid epsilon decaying into a number close to zero, we stop decaying if it reached a certain threshold
+            if self.epsilon < 1e-3:
+                self.reduce_on_steps = False
+                self.epsilon = 0
         
         # Explore
         if prob < self.epsilon:

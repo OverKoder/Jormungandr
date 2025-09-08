@@ -1,7 +1,10 @@
 
-# Jormungandr: The A* algorithm applied to pathfinding in order to play the snake game!
+# Jormungandr: An Agent that plays the snake game!
 
-Implementation of the A* algorithm from scratch applied to pathfinding
+This personal projects aims to:
+- Solve this problem algorithmically with the A* algorithm, implemented from scratch to use as pathfinding.
+- Implement most of the tabular reinforcement learning algorithms.
+- Implement some deep learning algorithms.
 
 # How to use
 Clone the repository, and run the file Snake_game.py on the command line! There are two possible options:

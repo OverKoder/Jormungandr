@@ -3,10 +3,14 @@ from numpy import cumsum
 
 from Jormungandr import Jormungandr
 from utils import game_over
+
 from rl.environments import SnakeGame
+from rl.agent import Jormungandr as RL_Jormungandr
 from rl.action_selection import EpsilonGreedy
 from rl.solvers import SARSA, QLearning, n_step_SARSA, n_step_OffPolicy
-from rl.agent import Jormungandr as RL_Jormungandr
+from rl.actor_crtitc import ActorCritic
+from rl.DQN import DQNSolver
+
 from rl.planner import DynaQ, DynaQWithPriority
 
 from tqdm import tqdm
@@ -63,6 +67,9 @@ parser.add_argument("-p", "--planner",dest = 'planner', type = str, required = F
 
 # Threshold for priority sweeping
 parser.add_argument("-th", "--threshold",dest = 'threshold', type = float, required = False, default = 0.1, help = "Threshold for priority sweeping (DynaQ planning).")
+
+# Plot cumulative reward sum at the end
+parser.add_argument("-pl", "--plot",dest = 'plot', action='store_true', default = False, help = "Plot the cumulative reward sum at the end of training.")
 
 args = parser.parse_args()
 
@@ -132,27 +139,37 @@ if args.reinforcement:
     elif solver == 'nstepoffpolicy':
         solver = n_step_OffPolicy(n_steps = args.n_steps, agent = agent, environment = environment, planner = planner, save_path = args.save_path, test = args.test)
 
+    elif solver == "actorcritic":
+        solver = ActorCritic(environment = environment)
+
+    elif solver == "DQN":
+        solver = DQNSolver(environment = environment, batch_size = 128)
     else:
         print("ERROR Solver not found")
         sys.exit(-1)
  
+    reward_sum = []
+
     for episode in tqdm(range(1, args.episodes + 1), desc = 'Training...'):
         
         # Run episode
         solver.run_episode()
 
+        # Append reward sum
+        reward_sum.append(solver.reward_sum)
 
 
     print("Food eaten:", environment.food_eaten)
     print("Deaths:", environment.deaths)
 
-    """plt.plot(list(range(1,MAX_EPISODES)), cumsum(cum_rewards), label = 'Reward sum = ' + str(cumsum(cum_rewards)[-1]) + ' (ε = ' + str(epsilon) + ')')
-    plt.title("Evolution of agent learning (Off-policy SARSA)")
-    plt.xlabel('Episodes')
-    plt.ylabel('Cumulative sum of rewards')
-    plt.legend()
-    plt.savefig('plots/QLearning/Rewards_QLearning.png')
-    plt.clf()"""
+    if args.plot:
+        plt.plot(list(range(1, args.episodes + 1)), cumsum(reward_sum), label = 'Reward sum = ' + str(cumsum(reward_sum)[-1]) + ' (ε = ' + str(args.epislon) + ')')
+        plt.title("Cumulative reward over time")
+        plt.xlabel('Episodes')
+        plt.ylabel('Cumulative sum of rewards')
+        plt.legend()
+        plt.savefig('plots/output.png')
+        plt.clf()
 if args.algorithm:
 
     black = pygame.Color(0, 0, 0)

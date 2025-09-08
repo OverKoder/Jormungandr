@@ -73,7 +73,7 @@ class DynaQWithPriority():
         # Agent
         self.agent = agent
 
-		# Environment to plan
+        # Environment to plan
         self.environment = environment
           
         # Model of the environment

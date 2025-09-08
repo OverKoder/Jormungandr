@@ -1,6 +1,5 @@
 import random
 from collections import defaultdict
-from utils import manhattan_distance
 
 import pygame
 
